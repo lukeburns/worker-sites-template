@@ -1,0 +1,23 @@
+{
+  "name": "my-site",
+  "version": "1.0.0",
+  "description": "A template for kick starting a Cloudflare Workers project",
+  "module": "index.mjs",
+  "license": "MIT",
+  "scripts": {
+    "build": "rollup -c && cp package.json dist",
+    "format": "prettier --write '**/*.{js,css,json,md}'"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^17.0.0",
+    "@rollup/plugin-node-resolve": "^11.1.0",
+    "prettier": "^1.19.1",
+    "rollup": "^2.36.1",
+    "rollup-plugin-copy": "^3.4.0",
+    "rollup-plugin-terser": "^7.0.2"
+  },
+  "dependencies": {
+    "@cloudflare/kv-asset-handler": "~0.1.1"
+  },
+  "type": "module"
+}

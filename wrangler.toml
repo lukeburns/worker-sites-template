@@ -1,5 +1,14 @@
 account_id = ""
 name = "my-site"
-type = "webpack"
+type = "javascript"
 workers_dev = true
-site = { bucket = "./public" }
+
+[site]
+bucket = "public"
+entry-point = "dist"
+
+[build]
+command = "npm run build && cp package.json dist"
+upload_dir = "dist"
+upload_format = "modules"
+upload_exclude = ["*.map"]

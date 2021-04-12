@@ -7,25 +7,27 @@ import { getAssetFromKV, mapRequestToAsset } from '@cloudflare/kv-asset-handler'
  * 2. we will return an error message on exception in your Response rather
  *    than the default 404.html page.
  */
-const DEBUG = false
+const DEBUG = true
 
-addEventListener('fetch', event => {
-  try {
-    event.respondWith(handleEvent(event))
-  } catch (e) {
-    if (DEBUG) {
-      return event.respondWith(
-        new Response(e.message || e.toString(), {
-          status: 500,
-        }),
-      )
+export default {
+  async fetch (request, env) {
+    try {
+      return await handleRequest(request, env)
+    } catch (e) {
+      if (DEBUG) {
+        return new Response(e.message || e.toString(), {
+          status: 500
+        })
+      }
+      return new Response('Internal Error!', { status: 500 })
     }
-    event.respondWith(new Response('Internal Error', { status: 500 }))
   }
-})
+}
 
-async function handleEvent(event) {
-  const url = new URL(event.request.url)
+async function handleRequest (request, env) {
+  const event = { request, waitUntil: async (promise) => await promise }
+
+  const url = new URL(request.url)
   let options = {}
 
   /**
@@ -38,7 +40,7 @@ async function handleEvent(event) {
     if (DEBUG) {
       // customize caching
       options.cacheControl = {
-        bypassCache: true,
+        bypassCache: true
       }
     }
 
@@ -54,13 +56,12 @@ async function handleEvent(event) {
     response.headers.set('Feature-Policy', 'none')
 
     return response
-
   } catch (e) {
     // if an error is thrown try to serve the asset at 404.html
     if (!DEBUG) {
       try {
         let notFoundResponse = await getAssetFromKV(event, {
-          mapRequestToAsset: req => new Request(`${new URL(req.url).origin}/404.html`, req),
+          mapRequestToAsset: req => new Request(`${new URL(req.url).origin}/404.html`, req)
         })
 
         return new Response(notFoundResponse.body, { ...notFoundResponse, status: 404 })
@@ -78,7 +79,7 @@ async function handleEvent(event) {
  * route on a zone, or if you only want your static content
  * to exist at a specific path.
  */
-function handlePrefix(prefix) {
+function handlePrefix (prefix) {
   return request => {
     // compute the default (e.g. / -> index.html)
     let defaultAssetKey = mapRequestToAsset(request)
